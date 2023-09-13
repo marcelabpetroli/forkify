@@ -9,18 +9,21 @@ import 'regenerator-runtime/runtime';
 const controlRecipes = async function () {
   try {
     const id = window.location.hash.slice(1);
-
     if (!id) return;
+
     recipeView.renderSpinner();
 
-    // 1) Load recipe
+    // Load recipe
     await model.loadRecipe(id);
 
     // Render recipe
     recipeView.render(model.state.recipe);
   } catch (err) {
-    alert(err);
+    recipeView.renderError();
   }
 };
 
-['load', 'hashchange'].forEach(e => window.addEventListener(e, controlRecipes));
+const init = function () {
+  recipeView.addHandlerRender(controlRecipes);
+};
+init();
