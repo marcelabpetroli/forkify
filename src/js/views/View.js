@@ -4,13 +4,39 @@ export default class View {
   _data;
 
   render(data) {
-    if (!data || (Array.isArray(data) && data.length === 0))
-      return this.renderError();
+    if (!data || (Array.isArray(data) && data.length === 0)) return this.renderError();
 
     this._data = data;
     const markup = this._generateMarkup();
     this._clear();
     this._parentElement.insertAdjacentHTML('afterbegin', markup);
+  }
+
+  update(data) {
+    if (!data || (Array.isArray(data) && data.length === 0)) return this.renderError();
+
+    this._data = data;
+    const newMarkup = this._generateMarkup();
+
+    // Create new markup, but not render it -> generate markup and compare the new HTML with current HTML -> only change the new values
+    // Pass a string -> convert into a DOM object that lives in the memory
+    const newDOM = document.createRange().createContextualFragment(newMarkup);
+    const newElements = Array.from(newDOM.querySelectorAll('*'));
+    const currElements = Array.from(this._parentElement.querySelectorAll('*'));
+
+    newElements.forEach((newEl, i) => {
+      const currEl = currElements[i];
+
+      // Update text
+      if (!newEl.isEqualNode(currEl) && newEl.firstChild?.nodeValue.trim() !== '') {
+        currEl.textContent = newEl.textContent;
+      }
+
+      // Update attribute
+      if (!newEl.isEqualNode(currEl)) {
+        Array.from(newEl.attributes).forEach(attribute => currEl.setAttribute(attribute.name, attribute.value));
+      }
+    });
   }
 
   _clear() {
