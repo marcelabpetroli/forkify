@@ -5,9 +5,11 @@ import { RESULTS_PER_PAGE } from './config';
 
 export const state = {
   recipe: {},
-  results: [],
-  resultsPerPage: RESULTS_PER_PAGE,
-  currentPage: 1,
+  search: {
+    results: [],
+    resultsPerPage: RESULTS_PER_PAGE,
+    currentPage: 1,
+  },
 };
 
 // Doesn't return anything, only changes the state object
@@ -36,7 +38,7 @@ export const loadSearchResults = async function (query) {
   try {
     const data = await getJSON(`${API_URL}?search=${query}`);
 
-    state.results = data.data.recipes.map(recipe => {
+    state.search.results = data.data.recipes.map(recipe => {
       return {
         id: recipe.id,
         title: recipe.title,
@@ -50,10 +52,10 @@ export const loadSearchResults = async function (query) {
   }
 };
 
-export const getSearchResultsPage = function (page = state.currentPage) {
-  state.currentPage = page;
-  const start = (page - 1) * state.resultsPerPage;
-  const end = page * state.resultsPerPage;
+export const getSearchResultsPage = function (page = state.search.currentPage) {
+  state.search.currentPage = page;
+  const start = (page - 1) * state.search.resultsPerPage;
+  const end = page * state.search.resultsPerPage;
 
-  return state.results.slice(start, end);
+  return state.search.results.slice(start, end);
 };
